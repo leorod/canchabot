@@ -9,7 +9,7 @@
 ### Documento de Diseño y Análisis (Pre-entrega - Etapa 1)
 El análisis completo, los requisitos detallados, el alcance, las justificaciones técnicas de la plataforma y las decisiones arquitectónicas del proyecto se irán documentando en el siguiente link:
 
-**[(Google Docs) CanchaBot Pre-entrega](https://docs.google.com/document/d/1wGSvAR6F-bD5l4BbOTxjkhFV2VVTKp-w/edit)**
+**[(Google Docs) CanchaBot Pre-entrega](https://docs.google.com/document/d/1ctl0izc42J8nWT_1qMWcIu3bVYADMuzj/)**
 
 ### Diagramas y documentos auxiliares
 
