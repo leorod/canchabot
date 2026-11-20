@@ -1,0 +1,15 @@
+flowchart LR
+    B_USER["Usuario<br/>Toca «Pausar»"] --> B_APP["App<br/>Solicitud enviada"]
+    B_APP -- Envía --> B_VALID{"¿Válida?<br/>límites, autoridad, vigencia"}
+    B_VALID -- No --> B_REJ["Rechazada<br/>Mensaje con la causa"]
+    B_VALID -- Sí --> B_GW["Gateway<br/>Aceptada por el gateway"]
+    B_GW -- Ordena --> B_ROBOT["Robot<br/>Ejecuta el comportamiento"]
+    B_ROBOT -- Estado --> B_CONF{"¿El estado del robot<br/>lo confirma?"}
+    B_CONF -- Sí --> B_OK(["Ejecutada<br/>La app actualiza el estado"])
+    B_CONF -- No --> B_NOCONF["Sin confirmación<br/>No se asume ejecutado · Reintentar"]
+    B_NOCONF -- Reintentar --> B_APP
+
+    classDef bad fill:#fce4ec,stroke:#c2185b,color:#000
+    classDef good fill:#e8f5e9,stroke:#2e7d32,color:#000
+    class B_REJ,B_NOCONF bad
+    class B_OK good

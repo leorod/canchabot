@@ -1,0 +1,48 @@
+flowchart TB
+    subgraph PHONE["Dispositivo móvil (Dueño / personal)"]
+        subgraph APP["CanchaBot (Android nativo)"]
+            COMPOSE["Jetpack Compose UI<br/>(Inicio, Misión, Modo manual, Inventario)"]
+            MVVM["Motor MVVM / Clean Architecture<br/>(ViewModel · casos de uso · repositorios)"]
+            ROOM[("Room DB<br/>Lotes, entregas, historial, cola pendiente")]
+            DS["DataStore<br/>(ajustes)"]
+        end
+        NOTIF["Notificaciones locales<br/>(servicio en primer plano durante una misión)"]
+    end
+
+    NET{{"Red Wi-Fi local del club"}}
+
+    subgraph GWHOST["Computadora del gateway (junto a las canchas)"]
+        API["Gateway API (Python · FastAPI)"]
+        SEC["Validación de seguridad<br/>(límites, vigencia de comandos, autoridad única, watchdog)"]
+        MISSIONS["Gestor de misiones<br/>(máquina de estados · patrón de barrido)"]
+        PERC["Percepción<br/>(detección de pelotas · OpenCV)"]
+        LOG[("Registro de eventos con marca temporal<br/>SQLite")]
+        ADAPTER["Adaptador del robot<br/>(SDK Unitree · Cyclone DDS)"]
+        SIM["Adaptador de simulador<br/>(alternativa para pruebas)"]
+    end
+
+    subgraph ROBOT["Robot cuadrúpedo Unitree (laboratorio)"]
+        LOCO["Controlador de locomoción (alto nivel)"]
+        SENS["Sensores (cámara, IMU)"]
+        BIN["Compartimento de recolección (accesorio)"]
+    end
+
+    subgraph SAFE["Seguridad física independiente de la app"]
+        ESTOP["Parada física / control remoto del robot"]
+    end
+
+    COMPOSE --> MVVM
+    MVVM -- "Lectura / Escritura" --> ROOM
+    MVVM -- "Ajustes" --> DS
+    MVVM <-- "HTTPS / JSON (REST)" --> NET
+    NET <-- "WSS (telemetría ~2 Hz)" --> API
+    API --> SEC
+    API --> MISSIONS
+    API --> PERC
+    SEC --> LOG
+    PERC --> MISSIONS
+    MISSIONS --> ADAPTER
+    ADAPTER -. "alternativa" .- SIM
+    ADAPTER <-- "DDS / Ethernet" --> LOCO
+    SENS --> PERC
+    ESTOP -. "actúa directo sobre el robot" .-> ROBOT

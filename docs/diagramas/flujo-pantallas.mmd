@@ -1,0 +1,26 @@
+flowchart LR
+    A_LOGIN["Ingreso · Entrada"] -- Ingresar --> A_HOME["Inicio<br/>Estado del robot"]
+    A_HOME -- "Nueva recolección" --> A_NEW["Nueva recolección<br/>Elegir cancha y checklist"]
+    A_NEW -- Continuar --> A_CONF["Confirmar<br/>Resumen antes de iniciar"]
+    A_CONF -- "Iniciar recolección" --> A_RUN["Misión en curso<br/>Telemetría en vivo"]
+
+    A_RUN -- "Pausar o aviso" --> A_PAUSE["Misión pausada<br/>Requiere ayuda"]
+    A_PAUSE -- Reanudar --> A_RUN
+    A_PAUSE -- "Modo manual" --> A_MAN["Modo manual<br/>Control mantenido"]
+    A_MAN -- Salir --> A_PAUSE
+    A_PAUSE -- "Volver a base" --> A_BASE(["Robot en base"])
+    A_PAUSE -- Cancelar --> A_CANCEL(["Misión cancelada<br/>Queda en Historial"])
+    A_RUN -- Cancelar --> A_CANCEL
+    A_RUN -- Completada --> A_SUM["Resumen de misión<br/>Confirmar cantidad real"]
+    A_SUM -- "Guardar lote" --> A_SAVED(["Lote guardado en Inventario"])
+
+    A_HOME -- Inventario --> A_INV["Inventario<br/>Lotes"]
+    A_INV -- "Tocar un lote" --> A_LOT["Detalle de lote<br/>Lote y reclamos"]
+    A_LOT --> A_Q{"¿Venció el plazo<br/>de reclamo?"}
+    A_Q -- No --> A_CLAIM["Registrar entrega<br/>Reclamo entregado"]
+    A_CLAIM -- Confirmar --> A_LOT
+    A_Q -- Sí --> A_RESALE["Pasar a reventa"]
+    A_RESALE --> A_RESALE_END(["Lote para reventa"])
+
+    A_HOME -- Historial --> A_HIST["Historial<br/>Misiones anteriores"]
+    A_HIST -- "Tocar misión" --> A_DET["Detalle de misión<br/>Registro de eventos"]

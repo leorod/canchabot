@@ -1,0 +1,55 @@
+flowchart LR
+    subgraph EXT["Fuentes externas"]
+        GW["Gateway API (FastAPI)<br/>→ Robot Unitree"]
+        DB[("Base de datos local<br/>SQLite / Room")]
+    end
+
+    subgraph DATA["Capa de Datos"]
+        REPO_R["GatewayRobotRepository"]
+        REPO_I["RoomInventoryRepository"]
+        REMOTE["Remote DataSource<br/>Retrofit REST + WebSocket de telemetría"]
+        LOCAL["Local DataSource<br/>Room DAO + cola de operaciones pendientes"]
+        MAP["Mappers<br/>DTO / Entity → Dominio"]
+    end
+
+    subgraph DOMAIN["Capa de Dominio"]
+        UC["Casos de uso<br/>StartMissionUseCase<br/>ObserveRobotStateUseCase<br/>SaveLotUseCase<br/>RegisterClaimUseCase"]
+        IFACE["Interfaces de repositorio<br/>RobotRepository<br/>MissionRepository<br/>InventoryRepository"]
+        MODELS["Modelos de dominio<br/>Robot, Mission, Court,<br/>Lot, Claim, RobotState"]
+    end
+
+    subgraph PRES["Capa de Presentación"]
+        UI["Composables<br/>HomeScreen / NewMissionScreen /<br/>MissionScreen / InventoryScreen"]
+        VM["ViewModels<br/>MissionViewModel / InventoryViewModel"]
+        STATE["UiState<br/>Loading / Success / Error / Offline"]
+    end
+
+    UI -- "1. Eventos de usuario (User Intent)" --> VM
+    VM -- "2. Invoca UseCase" --> UC
+    UC -- "3. Ejecuta regla de negocio y llama a la abstracción" --> IFACE
+    REPO_R -. "4. Implementa interfaz" .-> IFACE
+    REPO_I -. "4. Implementa interfaz" .-> IFACE
+
+    REPO_R -- "5a. Solicita estado / comandos remotos" --> REMOTE
+    REPO_I -- "5b. Persiste / lee localmente" --> LOCAL
+
+    REMOTE -- "HTTP/REST + WebSocket" --> GW
+    LOCAL -- "Lectura / Escritura" --> DB
+
+    REMOTE -- "6a. MissionDto / RobotStateDto" --> MAP
+    LOCAL -- "6b. LotEntity" --> MAP
+    MAP -- "7. Transforma a modelo de dominio" --> MODELS
+
+    MODELS --> UC
+    UC -- "8. Expone UiState vía StateFlow" --> VM
+    VM --> STATE
+    STATE -- "9. Re-renderiza UI declarativa" --> UI
+
+    classDef pres fill:#ede7f6,stroke:#5e35b1,color:#000
+    classDef dom fill:#e0f2f1,stroke:#00897b,color:#000
+    classDef data fill:#fff3e0,stroke:#ef6c00,color:#000
+    classDef ext fill:#e3f2fd,stroke:#1565c0,color:#000
+    class UI,VM,STATE pres
+    class UC,IFACE,MODELS dom
+    class REPO_R,REPO_I,REMOTE,LOCAL,MAP data
+    class GW,DB ext
